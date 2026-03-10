@@ -19,7 +19,7 @@ enum Commands {
     Pretty,
     Minify,
     Get{
-        path : String
+        field : String
     }
 }
 
@@ -37,8 +37,13 @@ fn main() {
     let pretty_string_json = to_string_pretty(&file_json).expect("Expected JSON file");
             println!("prettify the code {}", pretty_string_json);
         },
-        Commands::Get{path}=>{
-            println!("get somehting in the code");
+        Commands::Get{field}=>{
+            let mut value = &file_json;
+            for key in field.split("."){
+                value = &value[key];
+            }
+            
+            println!("value is {}", value);
         },
         Commands::Minify=>{
             let minify = to_string(&file_json).expect("bas aise hi expect msg likhna toh likh rha hu guys");

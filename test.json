@@ -1,5 +1,6 @@
 {
     "name" : "Deepesh",
     "age" : "21", 
-    "profession" : "Rust Developer"
+    "profession" : "Rust Developer",
+    "address" : {"city" : "bengaluru"}
 }
