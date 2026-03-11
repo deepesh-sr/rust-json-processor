@@ -23,7 +23,8 @@ enum Commands {
         field : String
     },
     Set{
-        field : String
+        field : String,
+        value: String
     }
 }
 
@@ -31,9 +32,9 @@ enum Commands {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
 
-    let file_value = std::fs::read_to_string(cli.path)?;
+    let file_value = std::fs::read_to_string(&cli.path)?;
 
-    let file_json = serde_json::from_str::<serde_json::Value>(file_value.as_str())?;
+    let mut file_json = serde_json::from_str::<serde_json::Value>(file_value.as_str())?;
     
     // matches just as you would the top level cmd
     match &cli.command {
@@ -54,6 +55,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Commands::Minify=>{
             let minify = to_string(&file_json)?;
             println!("minify the code {}", minify);
+            Ok(())
+        }
+        Commands::Set { field, value }=>{
+            let mut current_value = &mut file_json;
+            let keys : Vec<&str> = field.split(".").collect();
+            let (last_key,remaining_key) = keys.split_last().unwrap();
+            for key in remaining_key {
+               current_value = &mut current_value[key];
+            }
+            current_value[*last_key]= serde_json::Value::String(value.clone());
+            let path = &cli.path;
+            let pretty_format = to_string_pretty(&file_json)?;
+            std::fs::write(path,pretty_format)?;
             Ok(())
         }
     }
